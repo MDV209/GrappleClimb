@@ -5,26 +5,30 @@ using UnityEngine;
 public class PlayerMovement : MonoBehaviour
 {
     public float move = 0;
+    public float velocity = 6;
+    public float variance;
+    public float fastfall;
+    public float boostPower;
+    public float counterVel;
     public Vector2 direction = Vector2.zero;
     public Rigidbody2D player;
-    public float velocity = 6;
     private bool jump = true;
     public LineRenderer moveCheck;
-    public float variance;
-    public int fastfall;
-    private bool onGround = true;
     public GameObject character;
-    public float boostPower;
     private Coroutine boostRoutine;
     private bool midBoostLimiter = true;
-    public float counterVel;
-    public float velCap;
     public bool hasWon = true;
     public GameObject gameOverScreen;
 
     private void Start()
     {
         hasWon = true;
+        velocity *= Time.deltaTime;
+        move *= Time.deltaTime;
+        variance *= Time.deltaTime;
+        fastfall *= Time.deltaTime;
+        boostPower *= Time.deltaTime;
+        counterVel *= Time.deltaTime;
     }
 
     // Update is called once per frame
@@ -33,42 +37,12 @@ public class PlayerMovement : MonoBehaviour
         if (!hasWon)
         {
             Vector2 player_force = getDirection();
-            if (player.velocity.x < -velCap && player_force.x > 1)
-            {
-                player.AddForce(new Vector2(player_force.x * move, 0));
-            }
-            else if (player.velocity.x > velCap && player_force.x < 1)
-            {
-                player.AddForce(new Vector2(player_force.x * move, 0));
-            }
-            else if (player.velocity.x > -velCap && player.velocity.x < velCap)
-            {
-                player.AddForce(new Vector2(player_force.x * move, 0));
-            }
-            if (player_force.x == 0 && onGround)
-            {
-                if (player.velocity.x < 0)
-                {
-                    player.AddForce(new Vector2(counterVel, 0));
-                }
-                else
-                {
-                    player.AddForce(new Vector2(-counterVel, 0));
-                }
-            }
-            else if (player_force.x == 0 && !onGround)
-            {
-                if (player.velocity.x < 0)
-                {
-                    player.AddForce(new Vector2(counterVel / 2, 0));
-                }
-                else
-                {
-                    player.AddForce(new Vector2(-counterVel / 2, 0));
-                }
-            }
-            player.AddForce(new Vector2(0, player_force.y * velocity));
+            HorizontalMovement(player_force);
+            VerticalMovement(player_force);
             transform.rotation = new Quaternion(0, 0, 0, 0);
+
+
+
 
             if (character.GetComponent<grapple>().boostAvailable)
             {
@@ -78,7 +52,6 @@ public class PlayerMovement : MonoBehaviour
             {
                 StopCoroutine(boostRoutine);
             }
-            player.AddForce(new Vector2(player.velocity.normalized.x * -1 * counterVel, 0));
         }
         else
         {
@@ -100,7 +73,6 @@ public class PlayerMovement : MonoBehaviour
         {
             direction.y = 1;
             jump = false;
-            onGround = false;
         }
         else if (Input.GetKey(KeyCode.S))
         {
@@ -127,11 +99,20 @@ public class PlayerMovement : MonoBehaviour
         return direction;
     }
 
-    private void OnCollisionEnter2D(Collision2D collision)
+    private void HorizontalMovement(Vector2 player_force)
+    {
+        player.AddForce(new Vector2(player_force.x * move, 0));
+        player.AddForce(new Vector2(-player.velocity.x * counterVel, 0));
+    }
+    private void VerticalMovement(Vector2 player_force)
+    {
+        player.AddForce(new Vector2(0, player_force.y * velocity));
+    }
+
+        private void OnCollisionEnter2D(Collision2D collision)
     {
         if (collision.gameObject.tag == "Ground")
         {
-            onGround = true;
             jump = true;
         }
     }
@@ -144,7 +125,7 @@ public class PlayerMovement : MonoBehaviour
         }
         if (collision.gameObject.tag == "projectile")
         {
-            HealthMechs.instance.receiveDamage();
+            HealthMechs.instance.receiveDamage(collision);
         }
     }
 

@@ -2622,7 +2622,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5.96
+  orthographic size: 5.3
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -8790,17 +8790,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3bd00beed84d8a74982ecdf0c1440b3e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  move: 10
+  move: 75
+  velocity: 15000
+  variance: 15
+  fastfall: 10000
+  boostPower: 3750
+  counterVel: 12.5
   direction: {x: 0, y: 0}
   player: {fileID: 2097312618}
-  velocity: 300
   moveCheck: {fileID: 0}
-  variance: 0.3
-  fastfall: 25
   character: {fileID: 2097312615}
-  boostPower: 75
-  counterVel: 3
-  velCap: 5
   hasWon: 0
   gameOverScreen: {fileID: 1127415437}
 --- !u!120 &2097312621
